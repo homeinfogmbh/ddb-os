@@ -1,0 +1,9 @@
+[Trigger]
+Operation = Upgrade
+Type = Package
+Target = digital-signage
+
+[Action]
+Description = Migrating digital signage data...
+When = PostTransaction
+Exec = /usr/share/libalpm/scripts/migrate-digsig

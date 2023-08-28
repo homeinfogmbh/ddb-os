@@ -1,0 +1,8 @@
+[Unit]
+Description=Download up-to-date packages
+After=network.target
+Requires=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/systemd-inhibit --who=pacman --why=package-download /usr/bin/pacman -Syuw --noconfirm --disable-download-timeout

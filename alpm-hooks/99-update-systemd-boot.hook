@@ -1,0 +1,10 @@
+[Trigger]
+Type = Package
+Operation = Install
+Operation = Upgrade
+Target = systemd
+
+[Action]
+Description = Updating systemd-boot bootloader...
+When = PostTransaction
+Exec = /usr/share/libalpm/scripts/update-systemd-boot

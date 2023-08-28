@@ -1,0 +1,10 @@
+[Trigger]
+Type = Package
+Operation = Install
+Operation = Upgrade
+Target = syslinux
+
+[Action]
+Description = Updating Syslinux bootloader...
+When = PostTransaction
+Exec = /usr/share/libalpm/scripts/update-syslinux

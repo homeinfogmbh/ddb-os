@@ -1,0 +1,9 @@
+[Unit]
+Description=Sysupgrade from downloaded packages
+After=network.target
+Requires=network.target
+Conflicts=pacman-update.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/systemd-inhibit --who=pacman --why=system-upgrade /usr/bin/pacman -Su --noconfirm

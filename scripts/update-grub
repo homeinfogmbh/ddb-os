@@ -1,0 +1,14 @@
+#! /bin/bash
+
+if [ -d /sys/firmware/efi ]; then
+	exit 0;		# Do not install on EFI systems.
+fi
+
+if [ ! -b /dev/sda ]; then
+	echo "/dev/sda not present. You'll need to update manually."
+	exit 1;
+fi
+
+if [ -f /boot/grub/grub.cfg ]; then
+	/usr/bin/grub-install /dev/sda
+fi

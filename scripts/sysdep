@@ -1,0 +1,158 @@
+#! /usr/bin/env python3
+"""Print information about the system deployment."""
+
+from argparse import ArgumentParser, Namespace
+from json import load
+from logging import DEBUG, INFO, basicConfig, getLogger
+from os import linesep
+from typing import Any, Iterator
+from urllib.error import HTTPError
+from urllib.request import urlopen
+
+
+__all__ = [
+    'DEPLOYMENT_URL',
+    'Table',
+    'get_json',
+    'address_to_string',
+    'make_table'
+]
+
+
+DEPLOYMENT_URL = 'http://appcmd.homeinfo.intra/appcmd/deployment'
+BOLD = '\033[1m'
+CLEAR = '\033[0m'
+DESCRIPTION = 'Display system deployment information.'
+FILLING = ' '
+LOG_FORMAT = '[%(levelname)s] %(name)s: %(message)s'
+LOGGER = getLogger('sysdep')
+SPACING = '\t'
+
+
+class Table(dict):
+    """Key-value table."""
+
+    def __init__(self, filling: str = FILLING, spacing: str = SPACING):
+        """Initializes the key order list."""
+        super().__init__()
+        self.filling = filling
+        self.spacing = spacing
+        self._key_order = []
+
+    def __setitem__(self, key, value):
+        """Adds an item."""
+        if key not in self._key_order:
+            self._key_order.append(key)
+
+        return super().__setitem__(key, value)
+
+    def __str__(self):
+        """Returns the table as string."""
+        return linesep.join(self.lines())
+
+    @property
+    def maxlen(self) -> int:
+        """Returns the maximum key length."""
+        return max(len(key) for key in self)
+
+    def offset(self, key: str) -> str:
+        """Returns the offset string for the given key."""
+        return self.filling * (self.maxlen - len(key)) + self.spacing
+
+    def items(self) -> Iterator[tuple[str, Any]]:
+        """Yields ordered key value pairs."""
+        for key in self._key_order:
+            yield key, self[key]
+
+    def lines(self) -> Iterator[str]:
+        """Yields the string lines."""
+        for key, value in self.items():
+            yield f'{BOLD}{key}{CLEAR}:{self.offset(key)}{value}'
+
+
+def get_json(url: str) -> dict:
+    """Returns a JSON response from the given URL."""
+
+    with urlopen(url) as response:
+        return load(response)
+
+
+def address_to_string(address: dict) -> str:
+    """Prints the respective address object."""
+
+    street = address['street']
+    house_number = address['houseNumber']
+    zip_code = address['zipCode']
+    city = address['city']
+    return f'{street} {house_number}, {zip_code} {city}'
+
+
+def make_table(json, filling: str = FILLING, spacing: str = SPACING) -> Table:
+    """Prints the deployment information from a JSON object."""
+
+    table = Table(filling=filling, spacing=spacing)
+    table['Customer ID'] = json['customer']['id']
+    table['Customer name'] = json['customer']['company']['name']
+    table['Type'] = json['type']
+    table['Connection'] = json['connection']
+    table['Address'] = address_to_string(json['address'])
+    lpt_address = json.get('lptAddress')
+
+    if lpt_address:
+        table['LPT address'] = address_to_string(lpt_address)
+
+    scheduled = json.get('scheduled')
+
+    if scheduled:
+        table['Scheduled'] = scheduled
+
+    annotation = json.get('annotation')
+
+    if annotation:
+        table['Annotation'] = annotation
+
+    table['Testing'] = '✓' if json['testing'] else '✗'
+
+    timestamp = json.get('timestamp')
+
+    if timestamp:
+        table['Timestamp'] = timestamp
+
+    return table
+
+
+def get_args() -> Namespace:
+    """Parses the command line arguments."""
+
+    parser = ArgumentParser(description=DESCRIPTION)
+    parser.add_argument(
+        '-f', '--filling', default=FILLING, help='first column filling'
+    )
+    parser.add_argument(
+        '-s', '--spacing', default=SPACING,
+        help='spacing between first and second column'
+    )
+    parser.add_argument(
+        '-v', '--verbose', action='store_true', help='enable verbose logging'
+    )
+    return parser.parse_args()
+
+
+def main() -> None:
+    """Runs the script."""
+
+    args = get_args()
+    basicConfig(format=LOG_FORMAT, level=DEBUG if args.verbose else INFO)
+
+    try:
+        json = get_json(DEPLOYMENT_URL)
+    except HTTPError as http_error:
+        LOGGER.error('Got HTTP error: %s.', http_error)
+        raise SystemExit(1)
+
+    table = make_table(json, filling=args.filling, spacing=args.spacing)
+    print(table, flush=True)
+
+
+if __name__ == '__main__':
+    main()

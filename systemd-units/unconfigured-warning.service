@@ -1,0 +1,14 @@
+[Unit]
+Description=On-screen warning for unconfigured systems.
+Wants=xorg-server.service
+
+[Service]
+User=digsig
+Group=digsig
+Environment=DISPLAY=:0
+ExecStart=/usr/bin/xmessage -center "Not configured."
+ExecStartPost=/usr/bin/kiosk
+Restart=always
+
+[Install]
+WantedBy=graphical.target

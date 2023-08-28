@@ -1,0 +1,9 @@
+#! /bin/bash
+
+if [ -d /sys/firmware/efi ]; then
+	exit 0;		# Do not install on EFI systems.
+fi
+
+if [ -f /boot/syslinux/syslinux.cfg ]; then
+	/usr/bin/syslinux-install_update -i -a -m
+fi

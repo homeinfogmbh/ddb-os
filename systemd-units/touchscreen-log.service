@@ -1,0 +1,10 @@
+[Unit]
+Description=Log touch screen events
+
+[Service]
+ExecStart=/usr/bin/evtest /dev/input/by-id/usb-Silicon_Works_Multi-touch_Device-event-if00
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

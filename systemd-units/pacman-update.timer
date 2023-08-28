@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily download up-to-date packages
+After=network.target network-online.target
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+RandomizedDelaySec=6h
+
+[Install]
+WantedBy=timers.target

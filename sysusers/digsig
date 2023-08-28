@@ -1,0 +1,13 @@
+# HOMEINFO digital signage user.
+u	digsig	-	"HOMEINFO Digital Signage User"	/home/digsig
+u	iperf3	-	"Iperf3 daemon user"
+
+# HOMEINFO digital signage group.
+g	digsig	-	-
+g	iperf3	-	-
+
+# HOMEINFO digital signage group memberships.
+m	digsig	digsig
+m	digsig	audio
+m	http	digsig
+m	iperf3	iperf3

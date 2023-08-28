@@ -1,0 +1,9 @@
+[Unit]
+Description=Reboot the system at the given time
+
+[Timer]
+OnCalendar=%I
+Unit=systemd-reboot.service
+
+[Install]
+WantedBy=timers.target

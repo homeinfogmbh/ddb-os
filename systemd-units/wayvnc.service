@@ -1,0 +1,13 @@
+[Unit]
+Description=Wayland VNC server for Cage with Chromium
+After=chromium.service
+BindsTo=chromium.service
+
+[Service]
+Type=simple
+User=digsig
+Group=digsig
+PassEnvironment=XDG_RUNTIME_DIR WAYLAND_DISPLAY
+ExecStart=/usr/bin/wayvnc
+Restart=always
+PAMName=cage

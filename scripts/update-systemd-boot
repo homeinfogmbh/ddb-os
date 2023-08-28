@@ -1,0 +1,10 @@
+#! /bin/bash
+
+if [ ! -d /sys/firmware/efi ]; then
+	exit 0;		# Do not install on non-EFI systems.
+fi
+
+if [ -d /boot/loader ]; then
+	# Compensate for possible I/O error on broken installations.
+	/usr/bin/bootctl update || /usr/bin/bootctl install;
+fi
