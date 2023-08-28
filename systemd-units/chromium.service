@@ -6,7 +6,7 @@
 Description=Chromium web browser on Cage Wayland compositor on
 # Make sure we are started after logins are permitted. If Plymouth is
 # used, we want to start when it is on its way out.
-After=systemd-user-sessions.service plymouth-quit-wait.service
+After=systemd-user-sessions.service plymouth-quit-wait.service network-online.target
 # Since we are part of the graphical session, make sure we are started
 # before it is complete.
 Before=graphical.target
