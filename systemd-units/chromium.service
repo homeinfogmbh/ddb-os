@@ -22,9 +22,6 @@ After=getty@tty7.service
 
 [Service]
 Type=simple
-Environment=WLR_HEADLESS_OUTPUTS=1
-#Environment=WLR_BACKENDS=headless
-Environment=WLR_LIBINPUT_NO_DEVICES=1
 ExecStart=/usr/bin/cage -ds -- /usr/bin/chromium --kiosk --fullscreen --window-size=1920,1080 --window-position=0,0 --enable-logging --v=1
 Restart=on-failure
 RestartSec=5
