@@ -3,7 +3,7 @@
 # with systemd logind support.
 
 [Unit]
-Description=Show On-screen warning for unconfigured systems on Cage Wayland compositor
+Description=Show On-screen warning for unconfigured systems
 # Make sure we are started after logins are permitted. If Plymouth is
 # used, we want to start when it is on its way out.
 After=systemd-user-sessions.service plymouth-quit-wait.service network-online.target
@@ -22,7 +22,7 @@ After=getty@tty7.service
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/xmessage -center "Not configured."
+ExecStart=/usr/bin/cage -ds -- /usr/bin/xmessage -center "Not configured."
 Restart=on-failure
 RestartSec=5
 User=digsig
