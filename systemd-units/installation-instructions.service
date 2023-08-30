@@ -17,7 +17,7 @@ Wants=dbus.socket systemd-logind.service wayvnc.service
 After=dbus.socket systemd-logind.service
 # Replace any (a)getty that may have spawned, since we log in
 # automatically.
-Conflicts=chromium.service @tty7.service
+Conflicts=chromium.service getty@tty7.service
 After=getty@tty7.service
 
 [Service]
