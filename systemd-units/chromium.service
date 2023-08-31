@@ -17,7 +17,7 @@ Wants=dbus.socket systemd-logind.service wayvnc.service
 After=dbus.socket systemd-logind.service
 # Replace any (a)getty that may have spawned, since we log in
 # automatically.
-Conflicts=installation-instructions.service getty@tty7.service
+Conflicts=getty@tty7.service installation-instructions.service unconfigured-warning.service
 After=getty@tty7.service
 
 [Service]

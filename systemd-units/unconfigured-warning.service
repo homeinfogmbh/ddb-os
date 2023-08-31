@@ -3,7 +3,7 @@
 # with systemd logind support.
 
 [Unit]
-Description=Show On-screen warning for unconfigured systems
+Description=Show on-screen warning for unconfigured systems
 # Make sure we are started after logins are permitted. If Plymouth is
 # used, we want to start when it is on its way out.
 After=systemd-user-sessions.service plymouth-quit-wait.service network-online.target
@@ -17,13 +17,13 @@ Wants=dbus.socket systemd-logind.service wayvnc.service
 After=dbus.socket systemd-logind.service
 # Replace any (a)getty that may have spawned, since we log in
 # automatically.
-Conflicts=chromium.service getty@tty7.service
+Conflicts=chromium.service getty@tty7.service installation-instructions.service
 After=getty@tty7.service
 
 [Service]
 Type=simple
 ExecStart=/usr/bin/cage -ds -- /usr/bin/xmessage -center "Not configured."
-Restart=on-failure
+Restart=always
 RestartSec=5
 User=digsig
 Group=digsig
