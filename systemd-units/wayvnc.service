@@ -1,6 +1,7 @@
 [Unit]
 Description=Wayland VNC server for Cage
 After=chromium.service installation-instructions.service unconfigured-warning.service
+PartOf=chromium.service installation-instructions.service unconfigured-warning.service
 
 [Service]
 Type=simple
