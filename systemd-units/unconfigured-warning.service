@@ -23,7 +23,7 @@ After=getty@tty7.service
 [Service]
 Type=simple
 ExecStart=/usr/bin/cage -ds -- /usr/bin/xmessage -center "Not configured."
-Restart=always
+Restart=on-failure
 RestartSec=5
 User=digsig
 Group=digsig

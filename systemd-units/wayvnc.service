@@ -1,7 +1,6 @@
 [Unit]
-Description=Wayland VNC server for Cage with Chromium
-After=chromium.service
-BindsTo=chromium.service
+Description=Wayland VNC server for Cage
+After=chromium.service installation-instructions.service unconfigured-warning.service
 
 [Service]
 Type=simple
@@ -9,5 +8,6 @@ User=digsig
 Group=digsig
 PassEnvironment=XDG_RUNTIME_DIR WAYLAND_DISPLAY
 ExecStart=/usr/bin/wayvnc -C /etc/wayvnc.conf
-Restart=always
+Restart=on-failure
 PAMName=cage
+RestartSec=5
