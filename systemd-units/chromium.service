@@ -24,6 +24,7 @@ After=getty@tty7.service
 [Service]
 Type=simple
 ExecStartPre=/usr/bin/fix-chromium-preferences
+ExecStartPre=/usr/bin/chvt 7
 ExecStart=/usr/bin/cage -ds -- /usr/bin/chromium --kiosk --fullscreen --window-size=1920,1080 --window-position=0,0 --enable-logging --v=1
 Restart=on-failure
 RestartSec=5

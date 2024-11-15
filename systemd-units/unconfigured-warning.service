@@ -23,6 +23,7 @@ After=getty@tty7.service
 
 [Service]
 Type=simple
+ExecStartPre=/usr/bin/chvt 7
 ExecStart=/usr/bin/cage -ds -- /usr/bin/xmessage -center "Not configured."
 Restart=on-failure
 RestartSec=5
