@@ -7,7 +7,7 @@ Type=simple
 User=digsig
 Group=digsig
 PassEnvironment=XDG_RUNTIME_DIR WAYLAND_DISPLAY
-ExecStart=/usr/bin/wayvnc -C /etc/wayvnc.conf
+ExecStart=/bin/sh -c 'XDG_RUNTIME_DIR=/run/user/$(id -u digsig) exec /usr/bin/wayvnc -C /etc/wayvnc.conf'
 Restart=on-failure
-PAMName=cage
+#PAMName=cage
 RestartSec=5

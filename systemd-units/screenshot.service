@@ -8,5 +8,5 @@ Type=oneshot
 User=digsig
 Group=digsig
 PassEnvironment=XDG_RUNTIME_DIR WAYLAND_DISPLAY
-ExecStart=/usr/bin/grim /tmp/screenshot.png
-PAMName=cage
+ExecStart=/bin/sh -c 'XDG_RUNTIME_DIR=/run/user/$(id -u digsig) exec /usr/bin/grim /tmp/screenshot.png'
+#PAMName=cage
