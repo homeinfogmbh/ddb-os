@@ -1,0 +1,19 @@
+{
+  "config": {
+    "updateIntervalMinutes": 1,
+    "linkTargetMode": "allow",
+    "popupMode": "allow",
+    "default": "https://portal.homeinfo.de/homeinfo/" 
+  },
+  "whitelist": [
+    {
+      "url": "*google.com*"
+    },
+    {
+      "url": "*microsoft.com*"
+    },
+    {
+      "url": "*file*"
+    }
+  ]
+}
