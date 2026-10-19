@@ -102,6 +102,80 @@ chrome.webNavigation.onErrorOccurred.addListener(async (details) => {
   }
 });
 
+// Renderer watchdog
+//
+// When a tab's renderer process crashes (SIGSEGV, OOM kill, ...) Chromium shows
+// the "Aw, Snap!" page but keeps the tab's original URL and fires no tabs event,
+// so the listeners above never see it and the kiosk stays dead until the browser
+// is restarted. Instead, check every tab periodically: a crashed tab reports
+// status "unloaded", a hung one does not answer a ping to the content script in
+// its top frame. After WATCHDOG_MAX_FAILURES failed checks in a row the tab is
+// sent to the default URL.
+const WATCHDOG_ALARM_NAME = "renderer_watchdog";
+const WATCHDOG_INTERVAL_MINUTES = 1;
+const WATCHDOG_PING_TIMEOUT_MS = 10000;
+const WATCHDOG_MAX_FAILURES = 2;
+
+chrome.alarms.onAlarm.addListener(async (alarm) => {
+  if (alarm.name === WATCHDOG_ALARM_NAME) {
+    await checkTabsAlive();
+  }
+});
+
+async function setupWatchdog() {
+  const alarm = await chrome.alarms.get(WATCHDOG_ALARM_NAME);
+  if (alarm && alarm.periodInMinutes === WATCHDOG_INTERVAL_MINUTES) {
+    return;
+  }
+  await chrome.alarms.create(WATCHDOG_ALARM_NAME, { periodInMinutes: WATCHDOG_INTERVAL_MINUTES });
+}
+
+function pingTab(tabId) {
+  const ping = chrome.tabs.sendMessage(tabId, { type: 'BAYWATCH_PING' }, { frameId: 0 });
+  const timeout = new Promise((_, reject) => {
+    setTimeout(() => reject(new Error("ping timeout")), WATCHDOG_PING_TIMEOUT_MS);
+  });
+  return Promise.race([ping, timeout]).then(
+    (response) => Boolean(response && response.alive),
+    () => false
+  );
+}
+
+async function checkTabsAlive() {
+  // Failure counters live in session storage, since the service worker is
+  // terminated between alarms.
+  const stored = await chrome.storage.session.get(['watchdogFailures']);
+  const oldFailures = stored.watchdogFailures || {};
+  const failures = {};
+  const tabs = await chrome.tabs.query({});
+
+  for (const tab of tabs) {
+    // Only web pages carry our content script. Skip loading tabs, so a
+    // navigation in progress is not mistaken for a dead renderer.
+    if (!tab.url || !/^https?:/.test(tab.url) || tab.status === 'loading') {
+      continue;
+    }
+
+    // A crashed tab reports status "unloaded"; a hung one is "complete" but
+    // does not answer the ping.
+    if (tab.status === 'complete' && await pingTab(tab.id)) {
+      continue;
+    }
+
+    const count = (oldFailures[tab.id] || 0) + 1;
+    if (count < WATCHDOG_MAX_FAILURES) {
+      failures[tab.id] = count;
+      continue;
+    }
+
+    console.warn("[Service Worker] Tab renderer not responding, reloading default page:", tab.id, tab.url);
+    const defaultUrl = await getDefaultUrl();
+    chrome.tabs.update(tab.id, { url: defaultUrl });
+  }
+
+  await chrome.storage.session.set({ watchdogFailures: failures });
+}
+
 async function setupAlarm(intervalMinutes = 1) {
   // Check if alarm exists and has the correct period
   const alarm = await chrome.alarms.get(ALARM_NAME);
@@ -474,3 +548,4 @@ async function updateDnrRules(whitelist, configUrl) {
 
 // Ensure initialization runs when the Service Worker loads (e.g. after toggle)
 setupAlarm().catch(console.error);
+setupWatchdog().catch(console.error);

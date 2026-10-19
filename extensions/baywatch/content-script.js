@@ -37,6 +37,14 @@ function requestConfigOnLoad() {
 // Request config on page load
 requestConfigOnLoad();
 
+// Answer the service worker's renderer watchdog. A crashed or hung renderer
+// cannot reply, which is how the watchdog detects it.
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message && message.type === 'BAYWATCH_PING') {
+    sendResponse({ alive: true });
+  }
+});
+
 // Also load from storage as immediate fallback
 chrome.storage.local.get(['appConfig'], (result) => {
   if (result.appConfig) {
